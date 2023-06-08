@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 app.use("/api", authRoutes);
 
 app.use((error, req, res, next) => {
-  // console.log(error);
+  console.log(error);
   const status = error.statusCode || 500;
   const message = error.message;
   const data = error.data;
@@ -20,4 +20,8 @@ app.use((error, req, res, next) => {
     error: message,
     data: data,
   });
+});
+
+app.listen(8080, () => {
+  console.log("App has started successfully");
 });
