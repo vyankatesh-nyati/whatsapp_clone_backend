@@ -1,21 +1,30 @@
 const express = require("express");
 const { body } = require("express-validator");
 
-const auth_controller = require("../controller/auth");
+const User = require("../models/user");
+
+const authController = require("../controller/auth");
 
 const router = express.Router();
 
-// send OTP to number
+// new user Signup
 router.post(
-  "/login/send-otp",
+  "/signup",
   [
-    body("phone_number")
+    body("phoneNumber")
       .trim()
       .not()
       .isEmpty()
-      .withMessage("Enter valid phone number"),
+      .custom((value, { req }) => {
+        return User.findOne({ phoneNumber: value }).then((user) => {
+          if (user) {
+            return Promise.reject("Phone number already exists");
+          }
+        });
+      })
+      .withMessage("Enter valid unique phone number"),
   ],
-  auth_controller.send_otp
+  authController.newUserSignup
 );
 
 module.exports = router;
