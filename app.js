@@ -2,12 +2,40 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const multer = require("multer");
+const path = require("path");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "/images/profiles"));
+    // console.log(req.body.name);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
 
 const authRoutes = require("./routes/auth");
 
 const app = express();
 
 app.use(bodyParser.json());
+
+app.use(
+  multer({ storage: storage, fileFilter: fileFilter }).single("profilePic")
+);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -18,6 +46,9 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
+
+app.use(express.static("public"));
+app.use("/images", express.static("images"));
 
 app.use("/api", authRoutes);
 
@@ -38,7 +69,7 @@ mongoose
   )
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(8080, () => {
+    app.listen(process.env.PORT || 8080, () => {
       console.log("App has started successfully");
     });
   });

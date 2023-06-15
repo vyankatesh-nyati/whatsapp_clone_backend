@@ -32,3 +32,29 @@ exports.newUserSignup = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.updateUserData = async (req, res, next) => {
+  const userId = req.params.id;
+  const name = req.body.name;
+  let profileUrl =
+    "https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png";
+  if (req.file) {
+    profileUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}/images/profiles/${req.file.originalname}`;
+  }
+  try {
+    const foundUser = await User.findById(userId);
+    foundUser.name = name;
+    foundUser.profileUrl = profileUrl;
+
+    const result = await foundUser.save();
+    res.status(200).json({
+      message: "User data added successfully.",
+      result: result,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};

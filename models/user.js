@@ -8,6 +8,12 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    name: {
+      type: String,
+    },
+    profileUrl: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

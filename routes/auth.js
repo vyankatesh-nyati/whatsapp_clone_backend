@@ -27,4 +27,17 @@ router.post(
   authController.newUserSignup
 );
 
+// update user data
+router.patch(
+  "/signup/:id",
+  [
+    body("name")
+      .trim()
+      .not()
+      .isEmpty()
+      .withMessage("Enter valid name with length greater than 0"),
+  ],
+  authController.updateUserData
+);
+
 module.exports = router;
