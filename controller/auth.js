@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
@@ -47,9 +48,22 @@ exports.updateUserData = async (req, res, next) => {
     foundUser.profileUrl = profileUrl;
 
     const result = await foundUser.save();
+    // console.log(result._id);
+    const token = jwt.sign(
+      {
+        id: result._id,
+        phoneNumber: result.phoneNumber,
+        name: result.name,
+      },
+      process.env.SECRET_KEY
+    );
+
+    // console.log(token);
+
     res.status(200).json({
       message: "User data added successfully.",
       result: result,
+      token: token,
     });
   } catch (err) {
     if (!err.statusCode) {
