@@ -43,6 +43,15 @@ exports.updateUserData = async (req, res, next) => {
     profileUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}/images/profiles/${req.file.originalname}`;
   }
   try {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const error = new Error("Validation Failed");
+      error.statusCode = 422;
+      error.data = errors.array();
+      throw error;
+    }
+
     const foundUser = await User.findById(userId);
     foundUser.name = name;
     foundUser.profileUrl = profileUrl;
