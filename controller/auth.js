@@ -81,3 +81,23 @@ exports.updateUserData = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getUserDetails = async (req, res, next) => {
+  const id = req.userId;
+  try {
+    const foundUser = await User.findById(id);
+    if (!foundUser) {
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      throw err;
+    }
+    res
+      .status(200)
+      .json({ message: "User found successfully", data: foundUser });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
