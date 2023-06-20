@@ -14,10 +14,10 @@ exports.ifNumberExists = async (req, res, next) => {
     let exists = false;
     for (let i = 0; i < users.length; i++) {
       const userNumber = users[i].phoneNumber;
-      const decodedNumber = userNumber.split("-")[1];
       // console.log(decodedNumber);
-      if (decodedNumber === number) {
+      if (userNumber === number) {
         exists = true;
+        break;
       }
     }
 
