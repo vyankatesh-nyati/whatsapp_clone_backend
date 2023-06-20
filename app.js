@@ -5,10 +5,16 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const path = require("path");
 
+const authRoutes = require("./routes/auth");
+const contactRoutes = require("./routes/contact");
+
+const app = express();
+
+app.use(bodyParser.json());
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, path.join(__dirname, "/images/profiles"));
-    // console.log(req.body.name);
   },
   filename: (req, file, cb) => {
     cb(null, file.originalname);
@@ -26,12 +32,6 @@ const fileFilter = (req, file, cb) => {
     cb(null, false);
   }
 };
-
-const authRoutes = require("./routes/auth");
-
-const app = express();
-
-app.use(bodyParser.json());
 
 app.use(
   multer({ storage: storage, fileFilter: fileFilter }).single("profilePic")
@@ -51,6 +51,7 @@ app.use(express.static("public"));
 app.use("/images", express.static("images"));
 
 app.use("/api", authRoutes);
+app.use("/api", contactRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
