@@ -4,32 +4,16 @@ exports.ifNumberExists = async (req, res, next) => {
   const number = req.body.phoneNumber.trim();
 
   try {
-    const users = await User.find();
+    const users = await User.find({ phoneNumber: number });
     if (users.length === 0) {
       res.status(200).json({
         message: "User not found",
         isFound: false,
       });
-    }
-    let exists = false;
-    for (let i = 0; i < users.length; i++) {
-      const userNumber = users[i].phoneNumber;
-      // console.log(decodedNumber);
-      if (userNumber === number) {
-        exists = true;
-        break;
-      }
-    }
-
-    if (exists) {
+    } else {
       res.status(200).json({
         message: "User found",
         isFound: true,
-      });
-    } else {
-      res.status(200).json({
-        message: "User not found",
-        isFound: false,
       });
     }
   } catch (err) {
