@@ -70,7 +70,9 @@ mongoose
   )
   .then(() => {
     console.log("Database connected successfully");
-    app.listen(process.env.PORT || 8080, () => {
-      console.log("App has started successfully");
+    const server = app.listen(process.env.PORT || 8080);
+    const io = require("./socket").init(server);
+    io.on("connection", (socket) => {
+      console.log("Client connected");
     });
   });

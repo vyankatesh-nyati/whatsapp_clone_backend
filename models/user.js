@@ -14,6 +14,9 @@ const userSchema = new Schema(
     profileUrl: {
       type: String,
     },
+    isOnline: {
+      type: Boolean,
+    },
   },
   { timestamps: true }
 );

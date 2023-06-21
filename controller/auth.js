@@ -55,6 +55,7 @@ exports.updateUserData = async (req, res, next) => {
     const foundUser = await User.findById(userId);
     foundUser.name = name;
     foundUser.profileUrl = profileUrl;
+    foundUser.isOnline = true;
 
     const result = await foundUser.save();
     // console.log(result._id);
