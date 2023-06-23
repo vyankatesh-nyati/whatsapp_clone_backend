@@ -75,6 +75,15 @@ mongoose
     const server = app.listen(process.env.PORT || 8080);
     const io = require("./socket").init(server);
     io.on("connection", (socket) => {
-      // console.log(socket.id);
+      // join user to room with his mongoid
+      let roomId;
+      socket.on("create-room", (data) => {
+        roomId = data.clientId;
+        socket.join(data.clientId);
+      });
+
+      socket.on("disconnect", () => {
+        socket.leave(roomId);
+      });
     });
   });

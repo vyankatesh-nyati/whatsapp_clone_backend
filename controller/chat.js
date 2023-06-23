@@ -29,3 +29,7 @@ exports.chatDetails = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.sendMessage = async(data) => {
+  
+}
