@@ -7,6 +7,7 @@ const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
+const chatRoutes = require("./routes/chat");
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use("/images", express.static("images"));
 
 app.use("/api", authRoutes);
 app.use("/api", contactRoutes);
+app.use("/api", chatRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);
@@ -73,6 +75,6 @@ mongoose
     const server = app.listen(process.env.PORT || 8080);
     const io = require("./socket").init(server);
     io.on("connection", (socket) => {
-      console.log("Client connected");
+      // console.log(socket.id);
     });
   });

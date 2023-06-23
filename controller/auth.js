@@ -69,7 +69,6 @@ exports.updateUserData = async (req, res, next) => {
     );
 
     // console.log(token);
-
     res.status(200).json({
       message: "User data added successfully.",
       result: result,
@@ -85,6 +84,27 @@ exports.updateUserData = async (req, res, next) => {
 
 exports.getUserDetails = async (req, res, next) => {
   const id = req.userId;
+  try {
+    const foundUser = await User.findById(id);
+    if (!foundUser) {
+      const err = new Error("User not found");
+      err.statusCode = 404;
+      throw err;
+    }
+    res
+      .status(200)
+      .json({ message: "User found successfully", data: foundUser });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+
+exports.tokenValidation = async (req, res, next) => {
+  const id = req.userId;
+
   try {
     const foundUser = await User.findById(id);
     if (!foundUser) {

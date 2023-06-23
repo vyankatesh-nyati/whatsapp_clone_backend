@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const io = require("../socket");
 
 exports.ifNumberExists = async (req, res, next) => {
   const number = req.body.phoneNumber.trim();
@@ -14,6 +15,7 @@ exports.ifNumberExists = async (req, res, next) => {
       res.status(200).json({
         message: "User found",
         isFound: true,
+        data: users[0],
       });
     }
   } catch (err) {

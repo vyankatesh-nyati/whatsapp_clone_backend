@@ -43,4 +43,6 @@ router.patch(
 
 router.get("/user-details", isAuth, authController.getUserDetails);
 
+router.get("/token-validation", isAuth, authController.tokenValidation);
+
 module.exports = router;
