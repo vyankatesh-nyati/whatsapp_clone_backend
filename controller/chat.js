@@ -1,10 +1,11 @@
 const User = require("../models/user");
+const UserChat = require("../models/userChats");
 
 exports.chatDetails = async (req, res, next) => {
   const chatUserId = req.params.id;
   const userId = req.userId;
 
-  console.log(chatUserId);
+  // console.log(chatUserId);
 
   try {
     const foundUser = await User.findById(chatUserId);
@@ -30,6 +31,70 @@ exports.chatDetails = async (req, res, next) => {
   }
 };
 
-exports.sendMessage = async(data) => {
-  
-}
+exports.sendMessage = async (data) => {
+  const senderId = data.senderId;
+  const receiverId = data.receiverId;
+  const senderUsersChat = await UserChat.find({ userID: senderId });
+  const receiverUsersChat = await UserChat.find({ userID: receiverId });
+  const saveMessage = {
+    senderId: senderId,
+    receiverId: receiverId,
+    text: data.text,
+    timesent: data.timesent,
+    isSeen: data.isSeen,
+  };
+
+  if (senderUsersChat.length == 0) {
+    const newSenderUsersChat = new UserChat({
+      userID: senderId,
+      chats: [
+        {
+          othersId: receiverId,
+          messages: [saveMessage],
+        },
+      ],
+    });
+    await newSenderUsersChat.save();
+  } else {
+    const existMessage = senderUsersChat[0].chats.findIndex(
+      (c) => c.othersId == receiverId
+    );
+
+    if (existMessage != -1) {
+      senderUsersChat[0].chats[existMessage].messages.push(saveMessage);
+    } else {
+      senderUsersChat[0].chats.push({
+        othersId: receiverId,
+        messages: [saveMessage],
+      });
+    }
+    await senderUsersChat[0].save();
+  }
+
+  if (receiverUsersChat.length == 0) {
+    const newReceiverUsersChat = new UserChat({
+      userID: receiverId,
+      chats: [
+        {
+          othersId: senderId,
+          messages: [saveMessage],
+        },
+      ],
+    });
+    await newReceiverUsersChat.save();
+  } else {
+    const existMessage = receiverUsersChat[0].chats.findIndex(
+      (c) => c.othersId == senderId
+    );
+
+    if (existMessage != -1) {
+      receiverUsersChat[0].chats[existMessage].messages.push(saveMessage);
+    } else {
+      senderUsersChat[0].chats.push({
+        othersId: senderId,
+        messages: [saveMessage],
+      });
+    }
+    await senderUsersChat[0].save();
+  }
+};

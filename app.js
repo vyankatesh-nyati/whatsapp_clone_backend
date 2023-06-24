@@ -8,6 +8,7 @@ const path = require("path");
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
 const chatRoutes = require("./routes/chat");
+const chatController = require("./controller/chat");
 
 const app = express();
 
@@ -80,6 +81,17 @@ mongoose
       socket.on("create-room", (data) => {
         roomId = data.clientId;
         socket.join(data.clientId);
+      });
+
+      socket.on("send-message", (message) => {
+        chatController.sendMessage(message);
+        io.to(message.receiverId).emit("received-message", {
+          senderId: message.senderId,
+          receiverId: message.receiverId,
+          text: message.text,
+          timesent: message.timesent,
+          isSeen: message.isSeen,
+        });
       });
 
       socket.on("disconnect", () => {
