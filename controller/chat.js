@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const User = require("../models/user");
 const UserChat = require("../models/userChats");
 const io = require("../socket");
@@ -15,15 +16,34 @@ exports.chatDetails = async (req, res, next) => {
       err.statusCode = 402;
       throw err;
     }
-    res.status(200).json({
-      data: {
-        id: foundUser._id,
-        name: foundUser.name,
-        profileUrl: foundUser.profileUrl,
-        isOnline: foundUser.isOnline,
-        chatList: [],
-      },
-    });
+    const userChats = await UserChat.find({ userID: userId });
+    let chatsIndex;
+    if (userChats.length != 0) {
+      chatsIndex = userChats[0].chats.findIndex(
+        (c) => c.othersId == chatUserId
+      );
+    }
+    if (chatsIndex == -1) {
+      res.status(200).json({
+        data: {
+          id: foundUser._id,
+          name: foundUser.name,
+          profileUrl: foundUser.profileUrl,
+          isOnline: foundUser.isOnline,
+          chatList: [],
+        },
+      });
+    } else {
+      res.status(200).json({
+        data: {
+          id: foundUser._id,
+          name: foundUser.name,
+          profileUrl: foundUser.profileUrl,
+          isOnline: foundUser.isOnline,
+          chatList: userChats[0].chats[chatsIndex].messages,
+        },
+      });
+    }
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
@@ -38,6 +58,7 @@ exports.sendMessage = async (data) => {
   const senderUsersChat = await UserChat.find({ userID: senderId });
   const receiverUsersChat = await UserChat.find({ userID: receiverId });
   const saveMessage = {
+    _id: new mongoose.Types.ObjectId(),
     senderId: senderId,
     receiverId: receiverId,
     text: data.text,
