@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const UserChat = require("../models/userChats");
+const io = require("../socket");
 
 exports.chatDetails = async (req, res, next) => {
   const chatUserId = req.params.id;
@@ -90,11 +91,19 @@ exports.sendMessage = async (data) => {
     if (existMessage != -1) {
       receiverUsersChat[0].chats[existMessage].messages.push(saveMessage);
     } else {
-      senderUsersChat[0].chats.push({
+      receiverUsersChat[0].chats.push({
         othersId: senderId,
         messages: [saveMessage],
       });
     }
-    await senderUsersChat[0].save();
+    await receiverUsersChat[0].save();
   }
+
+  io.getIO().to(receiverId).emit("received-message", {
+    senderId: data.senderId,
+    receiverId: data.receiverId,
+    text: data.text,
+    timesent: data.timesent,
+    isSeen: data.isSeen,
+  });
 };

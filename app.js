@@ -85,13 +85,6 @@ mongoose
 
       socket.on("send-message", (message) => {
         chatController.sendMessage(message);
-        io.to(message.receiverId).emit("received-message", {
-          senderId: message.senderId,
-          receiverId: message.receiverId,
-          text: message.text,
-          timesent: message.timesent,
-          isSeen: message.isSeen,
-        });
       });
 
       socket.on("disconnect", () => {
