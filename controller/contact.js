@@ -1,4 +1,5 @@
 const User = require("../models/user");
+const UserChat = require("../models/userChats");
 const io = require("../socket");
 
 exports.ifNumberExists = async (req, res, next) => {
@@ -23,5 +24,32 @@ exports.ifNumberExists = async (req, res, next) => {
       err.statusCode = 500;
     }
     next(err);
+  }
+};
+
+exports.loadContactList = async (req, res, next) => {
+  const userId = req.userId;
+
+  try {
+    const loadUser = await UserChat.find({ userID: userId });
+
+    if (loadUser.length == 0) {
+      res.status(200).json({
+        data: [],
+      });
+    } else {
+      const loadContactList = loadUser[0].contacts;
+      const sortedList = loadContactList.sort((a, b) =>
+        a.updatedAt < b.updatedAt ? 1 : -1
+      );
+      res.status(200).json({
+        data: sortedList,
+      });
+    }
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
   }
 };

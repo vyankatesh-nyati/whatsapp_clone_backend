@@ -17,7 +17,7 @@ exports.chatDetails = async (req, res, next) => {
       throw err;
     }
     const userChats = await UserChat.find({ userID: userId });
-    let chatsIndex;
+    let chatsIndex = -1;
     if (userChats.length != 0) {
       chatsIndex = userChats[0].chats.findIndex(
         (c) => c.othersId == chatUserId
@@ -55,8 +55,12 @@ exports.chatDetails = async (req, res, next) => {
 exports.sendMessage = async (data) => {
   const senderId = data.senderId;
   const receiverId = data.receiverId;
+
   const senderUsersChat = await UserChat.find({ userID: senderId });
   const receiverUsersChat = await UserChat.find({ userID: receiverId });
+  const senderUser = await User.findById(senderId);
+  const receiverUser = await User.findById(receiverId);
+
   const saveMessage = {
     _id: new mongoose.Types.ObjectId(),
     senderId: senderId,
@@ -69,6 +73,15 @@ exports.sendMessage = async (data) => {
   if (senderUsersChat.length == 0) {
     const newSenderUsersChat = new UserChat({
       userID: senderId,
+      contacts: [
+        {
+          userId: receiverId,
+          name: receiverUser.name,
+          profileUrl: receiverUser.profileUrl,
+          timesent: data.timesent,
+          text: data.text,
+        },
+      ],
       chats: [
         {
           othersId: receiverId,
@@ -81,6 +94,9 @@ exports.sendMessage = async (data) => {
     const existMessage = senderUsersChat[0].chats.findIndex(
       (c) => c.othersId == receiverId
     );
+    const contactIndx = senderUsersChat[0].contacts.findIndex(
+      (c) => c.userId == receiverId
+    );
 
     if (existMessage != -1) {
       senderUsersChat[0].chats[existMessage].messages.push(saveMessage);
@@ -90,12 +106,40 @@ exports.sendMessage = async (data) => {
         messages: [saveMessage],
       });
     }
+
+    if (contactIndx != -1) {
+      senderUsersChat[0].contacts[contactIndx] = {
+        userId: receiverId,
+        name: receiverUser.name,
+        profileUrl: receiverUser.profileUrl,
+        timesent: data.timesent,
+        text: data.text,
+      };
+    } else {
+      senderUsersChat[0].contacts.push({
+        userId: receiverId,
+        name: receiverUser.name,
+        profileUrl: receiverUser.profileUrl,
+        timesent: data.timesent,
+        text: data.text,
+      });
+    }
+
     await senderUsersChat[0].save();
   }
 
   if (receiverUsersChat.length == 0) {
     const newReceiverUsersChat = new UserChat({
       userID: receiverId,
+      contacts: [
+        {
+          userId: senderId,
+          name: senderUser.name,
+          profileUrl: senderUser.profileUrl,
+          timesent: data.timesent,
+          text: data.text,
+        },
+      ],
       chats: [
         {
           othersId: senderId,
@@ -108,6 +152,9 @@ exports.sendMessage = async (data) => {
     const existMessage = receiverUsersChat[0].chats.findIndex(
       (c) => c.othersId == senderId
     );
+    const contactIndx = receiverUsersChat[0].contacts.findIndex(
+      (c) => c.userId == senderId
+    );
 
     if (existMessage != -1) {
       receiverUsersChat[0].chats[existMessage].messages.push(saveMessage);
@@ -117,14 +164,44 @@ exports.sendMessage = async (data) => {
         messages: [saveMessage],
       });
     }
+
+    if (contactIndx != -1) {
+      receiverUsersChat[0].contacts[contactIndx] = {
+        userId: senderId,
+        name: senderUser.name,
+        profileUrl: senderUser.profileUrl,
+        timesent: data.timesent,
+        text: data.text,
+      };
+    } else {
+      receiverUsersChat[0].contacts.push({
+        userId: senderId,
+        name: senderUser.name,
+        profileUrl: senderUser.profileUrl,
+        timesent: data.timesent,
+        text: data.text,
+      });
+    }
     await receiverUsersChat[0].save();
   }
 
-  io.getIO().to(receiverId).emit("received-message", {
+  io.getIO().to(senderId).emit("send-message-received", {
+    _id: saveMessage._id,
     senderId: data.senderId,
     receiverId: data.receiverId,
     text: data.text,
     timesent: data.timesent,
     isSeen: data.isSeen,
+  });
+
+  io.getIO().to(receiverId).emit("received-message", {
+    _id: saveMessage._id,
+    senderId: data.senderId,
+    receiverId: data.receiverId,
+    text: data.text,
+    timesent: data.timesent,
+    isSeen: data.isSeen,
+    name: senderUser.name,
+    profileUrl: senderUser.profileUrl,
   });
 };

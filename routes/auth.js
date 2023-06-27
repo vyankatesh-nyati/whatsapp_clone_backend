@@ -16,13 +16,13 @@ router.post(
       .trim()
       .not()
       .isEmpty()
-      .custom((value, { req }) => {
-        return User.findOne({ phoneNumber: value }).then((user) => {
-          if (user) {
-            return Promise.reject("Phone number already exists");
-          }
-        });
-      })
+      // .custom((value, { req }) => {
+      //   return User.findOne({ phoneNumber: value }).then((user) => {
+      //     if (user) {
+      //       return Promise.reject("Phone number already exists");
+      //     }
+      //   });
+      // })
       .withMessage("Enter valid unique phone number"),
   ],
   authController.newUserSignup

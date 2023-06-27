@@ -16,16 +16,25 @@ exports.newUserSignup = async (req, res, next) => {
 
     const phoneNumber = req.body.phoneNumber;
 
-    const user = new User({
-      phoneNumber: phoneNumber,
-    });
+    const userExist = await User.find({ phoneNumber: phoneNumber });
 
-    const response = await user.save();
-    // console.log(response._id);
-    res.status(200).json({
-      message: "User signup successfully",
-      id: response._id.toString(),
-    });
+    if (userExist.length != 0) {
+      res.status(200).json({
+        message: "User signin successfully",
+        id: userExist[0]._id.toString(),
+      });
+    } else {
+      const user = new User({
+        phoneNumber: phoneNumber,
+      });
+
+      const response = await user.save();
+      // console.log(response._id);
+      res.status(200).json({
+        message: "User signup successfully",
+        id: response._id.toString(),
+      });
+    }
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
