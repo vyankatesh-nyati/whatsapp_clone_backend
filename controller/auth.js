@@ -1,7 +1,9 @@
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 
+const io = require("../socket");
 const User = require("../models/user");
+const UserChats = require("../models/userChats");
 
 exports.newUserSignup = async (req, res, next) => {
   try {
@@ -124,6 +126,34 @@ exports.tokenValidation = async (req, res, next) => {
     res
       .status(200)
       .json({ message: "User found successfully", data: foundUser });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+
+exports.changeStatus = async (req, res, next) => {
+  const userId = req.userId;
+  const isOnline = req.body.isOnline;
+  try {
+    await User.findByIdAndUpdate(userId, {
+      isOnline: isOnline,
+    });
+    const response = await UserChats.find({ userID: userId });
+    if (response.length != 0) {
+      const list = response[0].contacts;
+      for (let i = 0; i < list.length; i++) {
+        io.getIO().to(list[i].userId).emit("status-change", {
+          isOnline: isOnline,
+          userId: userId,
+        });
+      }
+    }
+    res.status(200).json({
+      message: "Data updated successfully",
+    });
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
