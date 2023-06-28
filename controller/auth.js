@@ -64,14 +64,15 @@ exports.updateUserData = async (req, res, next) => {
     let profileUrl =
       "https://res.cloudinary.com/dfi2ugkb1/image/upload/v1687962069/zuadadrbw1tib8kivcou.jpg";
     if (req.file) {
-      profileUrl = await cloudinary.uploader.upload(
+      const result = await cloudinary.uploader.upload(
         path.join(__dirname, `../images/profiles/${req.file.originalname}`)
       );
+      profileUrl = result.secure_url;
     }
 
     const foundUser = await User.findById(userId);
     foundUser.name = name;
-    foundUser.profileUrl = profileUrl.secure_url;
+    foundUser.profileUrl = profileUrl;
     foundUser.isOnline = true;
 
     const result = await foundUser.save();
