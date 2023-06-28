@@ -58,9 +58,12 @@ const sendMessage = async (data) => {
   const receiverUsersChat = await UserChat.find({ userID: receiverId });
   const senderUser = await User.findById(senderId);
   const receiverUser = await User.findById(receiverId);
-
+  const _id = data._id;
+  if (_id == null) {
+    _id = new mongoose.Types.ObjectId();
+  }
   const saveMessage = {
-    _id: data._id,
+    _id: _id,
     senderId: senderId,
     receiverId: receiverId,
     text: data.text,
