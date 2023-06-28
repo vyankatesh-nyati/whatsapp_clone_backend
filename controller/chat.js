@@ -7,8 +7,6 @@ exports.chatDetails = async (req, res, next) => {
   const chatUserId = req.params.id;
   const userId = req.userId;
 
-  // console.log(chatUserId);
-
   try {
     const foundUser = await User.findById(chatUserId);
     if (!foundUser) {
@@ -52,7 +50,7 @@ exports.chatDetails = async (req, res, next) => {
   }
 };
 
-exports.sendMessage = async (data) => {
+const sendMessage = async (data) => {
   const senderId = data.senderId;
   const receiverId = data.receiverId;
 
@@ -62,12 +60,13 @@ exports.sendMessage = async (data) => {
   const receiverUser = await User.findById(receiverId);
 
   const saveMessage = {
-    _id: new mongoose.Types.ObjectId(),
+    _id: data._id,
     senderId: senderId,
     receiverId: receiverId,
     text: data.text,
     timesent: data.timesent,
     isSeen: data.isSeen,
+    type: data.type,
   };
 
   if (senderUsersChat.length == 0) {
@@ -80,6 +79,7 @@ exports.sendMessage = async (data) => {
           profileUrl: receiverUser.profileUrl,
           timesent: data.timesent,
           text: data.text,
+          type: data.type,
         },
       ],
       chats: [
@@ -114,6 +114,7 @@ exports.sendMessage = async (data) => {
         profileUrl: receiverUser.profileUrl,
         timesent: data.timesent,
         text: data.text,
+        type: data.type,
       };
     } else {
       senderUsersChat[0].contacts.push({
@@ -122,6 +123,7 @@ exports.sendMessage = async (data) => {
         profileUrl: receiverUser.profileUrl,
         timesent: data.timesent,
         text: data.text,
+        type: data.type,
       });
     }
 
@@ -138,6 +140,7 @@ exports.sendMessage = async (data) => {
           profileUrl: senderUser.profileUrl,
           timesent: data.timesent,
           text: data.text,
+          type: data.type,
         },
       ],
       chats: [
@@ -172,6 +175,7 @@ exports.sendMessage = async (data) => {
         profileUrl: senderUser.profileUrl,
         timesent: data.timesent,
         text: data.text,
+        type: data.type,
       };
     } else {
       receiverUsersChat[0].contacts.push({
@@ -180,6 +184,7 @@ exports.sendMessage = async (data) => {
         profileUrl: senderUser.profileUrl,
         timesent: data.timesent,
         text: data.text,
+        type: data.type,
       });
     }
     await receiverUsersChat[0].save();
@@ -192,6 +197,7 @@ exports.sendMessage = async (data) => {
     text: data.text,
     timesent: data.timesent,
     isSeen: data.isSeen,
+    type: data.type,
   });
 
   io.getIO().to(receiverId).emit("received-message", {
@@ -203,5 +209,68 @@ exports.sendMessage = async (data) => {
     isSeen: data.isSeen,
     name: senderUser.name,
     profileUrl: senderUser.profileUrl,
+    type: data.type,
   });
+};
+
+exports.sendTextMessage = async (req, res, next) => {
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
+  const text = req.body.text;
+  const timesent = req.body.timesent;
+  const isSeen = req.body.isSeen;
+  const type = req.body.type;
+  const _id = new mongoose.Types.ObjectId();
+
+  try {
+    await sendMessage({
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      timesent: timesent,
+      isSeen: isSeen,
+      text: text,
+      type: type,
+    });
+    res.status(200).json({
+      messageId: _id,
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+exports.sendFileMessage = async (req, res, next) => {
+  const _id = req._id;
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
+  const timesent = req.body.timesent;
+  const isSeen = req.body.isSeen;
+  const type = req.body.type;
+  let fileUrl;
+  if (req.file) {
+    fileUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}/images/chat/${req.file.originalname}_${_id}`;
+  }
+  try {
+    await sendMessage({
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      timesent: timesent,
+      isSeen: isSeen,
+      text: fileUrl,
+      type: type,
+    });
+    res.status(200).json({
+      messageId: _id,
+    });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
 };

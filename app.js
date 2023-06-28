@@ -2,8 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
-const multer = require("multer");
-const path = require("path");
 
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
@@ -13,31 +11,6 @@ const chatController = require("./controller/chat");
 const app = express();
 
 app.use(bodyParser.json());
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, "/images/profiles"));
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
-
-const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/jpg" ||
-    file.mimetype === "image/jpeg"
-  ) {
-    cb(null, true);
-  } else {
-    cb(null, false);
-  }
-};
-
-app.use(
-  multer({ storage: storage, fileFilter: fileFilter }).single("profilePic")
-);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -84,7 +57,7 @@ mongoose
       });
 
       socket.on("send-message", (message) => {
-        chatController.sendMessage(message);
+        chatController.sendTextMessage(message);
       });
 
       socket.on("disconnect", () => {

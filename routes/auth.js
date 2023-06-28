@@ -5,6 +5,7 @@ const User = require("../models/user");
 
 const authController = require("../controller/auth");
 const isAuth = require("../middlerware/is-auth");
+const multer = require("../multer");
 
 const router = express.Router();
 
@@ -31,6 +32,7 @@ router.post(
 // update user data
 router.patch(
   "/signup/:id",
+  multer.profileUpload,
   [
     body("name")
       .trim()

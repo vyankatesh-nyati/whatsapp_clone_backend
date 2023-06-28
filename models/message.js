@@ -23,6 +23,10 @@ const messageSchema = new Schema({
     type: Boolean,
     default: false,
   },
+  type: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = messageSchema;
