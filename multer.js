@@ -35,7 +35,7 @@ chatStorage = multer.diskStorage({
   filename: (req, file, cb) => {
     const _id = new mongoose.Types.ObjectId();
     req._id = _id;
-    cb(null, file.originalname + `_${_id}`);
+    cb(null, file.originalname);
   },
 });
 
