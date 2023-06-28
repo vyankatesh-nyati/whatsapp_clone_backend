@@ -251,7 +251,7 @@ exports.sendFileMessage = async (req, res, next) => {
   const type = req.body.type;
   let fileUrl;
   if (req.file) {
-    fileUrl = `${req.protocol}://${req.hostname}/images/chat/${req.file.originalname}_${_id}`;
+    fileUrl = `${req.protocol}://${req.hostname}/images/chat/${req.file.originalname}`;
   }
   try {
     await sendMessage({
@@ -264,7 +264,13 @@ exports.sendFileMessage = async (req, res, next) => {
       type: type,
     });
     res.status(200).json({
-      messageId: _id,
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      timesent: timesent,
+      isSeen: isSeen,
+      text: fileUrl,
+      type: type,
     });
   } catch (error) {
     if (!error.statusCode) {
