@@ -193,16 +193,6 @@ const sendMessage = async (data) => {
     await receiverUsersChat[0].save();
   }
 
-  io.getIO().to(senderId).emit("send-message-received", {
-    _id: saveMessage._id,
-    senderId: data.senderId,
-    receiverId: data.receiverId,
-    text: data.text,
-    timesent: data.timesent,
-    isSeen: data.isSeen,
-    type: data.type,
-  });
-
   io.getIO().to(receiverId).emit("received-message", {
     _id: saveMessage._id,
     senderId: data.senderId,
@@ -236,7 +226,13 @@ exports.sendTextMessage = async (req, res, next) => {
       type: type,
     });
     res.status(200).json({
-      messageId: _id,
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      timesent: timesent,
+      isSeen: isSeen,
+      text: text,
+      type: type,
     });
   } catch (err) {
     if (!err.statusCode) {

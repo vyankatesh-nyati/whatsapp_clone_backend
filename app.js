@@ -56,10 +56,6 @@ mongoose
         socket.join(data.clientId);
       });
 
-      socket.on("send-message", (message) => {
-        chatController.sendTextMessage(message);
-      });
-
       socket.on("disconnect", () => {
         socket.leave(roomId);
       });
