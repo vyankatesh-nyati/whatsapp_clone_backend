@@ -1,5 +1,7 @@
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 const io = require("../socket");
 const User = require("../models/user");
@@ -48,11 +50,7 @@ exports.newUserSignup = async (req, res, next) => {
 exports.updateUserData = async (req, res, next) => {
   const userId = req.params.id;
   const name = req.body.name;
-  let profileUrl =
-    "https://whatsapp-clone-backend-wswi.onrender.com/images/profiles/tumor%20(1112).jpg";
-  if (req.file) {
-    profileUrl = `${req.protocol}://${req.hostname}/images/profiles/${req.file.originalname}`;
-  }
+
   try {
     const errors = validationResult(req);
 
@@ -63,9 +61,17 @@ exports.updateUserData = async (req, res, next) => {
       throw error;
     }
 
+    let profileUrl =
+      "https://res.cloudinary.com/dfi2ugkb1/image/upload/v1687962069/zuadadrbw1tib8kivcou.jpg";
+    if (req.file) {
+      profileUrl = await cloudinary.uploader.upload(
+        path.join(__dirname, `../images/profiles/${req.file.originalname}`)
+      );
+    }
+
     const foundUser = await User.findById(userId);
     foundUser.name = name;
-    foundUser.profileUrl = profileUrl;
+    foundUser.profileUrl = profileUrl.secure_url;
     foundUser.isOnline = true;
 
     const result = await foundUser.save();

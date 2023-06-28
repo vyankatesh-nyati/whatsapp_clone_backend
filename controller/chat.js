@@ -2,6 +2,14 @@ const mongoose = require("mongoose");
 const User = require("../models/user");
 const UserChat = require("../models/userChats");
 const io = require("../socket");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET,
+});
 
 exports.chatDetails = async (req, res, next) => {
   const chatUserId = req.params.id;
@@ -252,27 +260,35 @@ exports.sendFileMessage = async (req, res, next) => {
     isSeen = true;
   }
   const type = req.body.type;
-  let fileUrl;
-  if (req.file) {
-    fileUrl = `${req.protocol}://${req.hostname}/images/chat/${req.file.originalname}`;
-  }
   try {
+    let result;
+    if (type === "video") {
+      result = await cloudinary.uploader.upload(
+        path.join(__dirname, `../images/chat/${req.file.originalname}`),
+        { resource_type: "video" }
+      );
+    } else {
+      result = await cloudinary.uploader.upload(
+        path.join(__dirname, `../images/chat/${req.file.originalname}`)
+      );
+    }
     await sendMessage({
       _id: _id,
       senderId: senderId,
       receiverId: receiverId,
       timesent: timesent,
       isSeen: isSeen,
-      text: fileUrl,
+      text: result.secure_url,
       type: type,
     });
+
     res.status(200).json({
       _id: _id,
       senderId: senderId,
       receiverId: receiverId,
       timesent: timesent,
       isSeen: isSeen,
-      text: fileUrl,
+      text: result.secure_url,
       type: type,
     });
   } catch (error) {
