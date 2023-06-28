@@ -247,7 +247,10 @@ exports.sendFileMessage = async (req, res, next) => {
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
   const timesent = req.body.timesent;
-  const isSeen = req.body.isSeen;
+  let isSeen = false;
+  if (req.body.isSeen == "true") {
+    isSeen = true;
+  }
   const type = req.body.type;
   let fileUrl;
   if (req.file) {
