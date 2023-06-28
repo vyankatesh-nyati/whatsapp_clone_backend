@@ -51,7 +51,7 @@ exports.updateUserData = async (req, res, next) => {
   let profileUrl =
     "https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png";
   if (req.file) {
-    profileUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}/images/profiles/${req.file.originalname}`;
+    profileUrl = `${req.protocol}://${req.hostname}/images/profiles/${req.file.originalname}`;
   }
   try {
     const errors = validationResult(req);

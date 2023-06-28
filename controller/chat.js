@@ -252,7 +252,7 @@ exports.sendFileMessage = async (req, res, next) => {
   const type = req.body.type;
   let fileUrl;
   if (req.file) {
-    fileUrl = `${req.protocol}://${req.hostname}:${process.env.PORT}/images/chat/${req.file.originalname}_${_id}`;
+    fileUrl = `${req.protocol}://${req.hostname}/images/chat/${req.file.originalname}_${_id}`;
   }
   try {
     await sendMessage({
