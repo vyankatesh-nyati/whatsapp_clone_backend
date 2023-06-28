@@ -49,7 +49,7 @@ exports.updateUserData = async (req, res, next) => {
   const userId = req.params.id;
   const name = req.body.name;
   let profileUrl =
-    "https://png.pngitem.com/pimgs/s/649-6490124_katie-notopoulos-katienotopoulos-i-write-about-tech-round.png";
+    "https://whatsapp-clone-backend-wswi.onrender.com/images/profiles/tumor%20(1112).jpg";
   if (req.file) {
     profileUrl = `${req.protocol}://${req.hostname}/images/profiles/${req.file.originalname}`;
   }
