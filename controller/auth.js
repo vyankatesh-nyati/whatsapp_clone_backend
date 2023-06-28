@@ -62,7 +62,7 @@ exports.updateUserData = async (req, res, next) => {
     }
 
     let profileUrl =
-      "https://res.cloudinary.com/dfi2ugkb1/image/upload/v1687962069/zuadadrbw1tib8kivcou.jpg";
+      "https://res.cloudinary.com/dfi2ugkb1/image/upload/v1687962551/riqlaxroz78bdyrvsxcp.jpg";
     if (req.file) {
       const result = await cloudinary.uploader.upload(
         path.join(__dirname, `../images/profiles/${req.file.originalname}`)
