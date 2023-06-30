@@ -262,16 +262,16 @@ exports.sendFileMessage = async (req, res, next) => {
   const type = req.body.type;
   try {
     let result;
-    if (type === "video") {
-      result = await cloudinary.uploader.upload(
-        path.join(__dirname, `../images/chat/${req.file.originalname}`),
-        { resource_type: "video" }
-      );
-    } else {
-      result = await cloudinary.uploader.upload(
-        path.join(__dirname, `../images/chat/${req.file.originalname}`)
-      );
-    }
+    // if (type === "text") {
+    //   result = await cloudinary.uploader.upload(
+    //     path.join(__dirname, `../images/chat/${req.file.originalname}`)
+    //   );
+    // } else {
+    result = await cloudinary.uploader.upload(
+      path.join(__dirname, `../images/chat/${req.file.originalname}`),
+      { resource_type: "auto" }
+    );
+    // }
     await sendMessage({
       _id: _id,
       senderId: senderId,
