@@ -17,4 +17,6 @@ router.post(
   chatController.sendFileMessage
 );
 
+router.post("/seen-message", isAuth, chatController.seenMessage);
+
 module.exports = router;

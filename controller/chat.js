@@ -366,3 +366,50 @@ exports.sendFileMessage = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.seenMessage = async (req, res, next) => {
+  const senderId = req.body.senderId;
+  const receiverId = req.body.receiverId;
+  const messageId = req.body.messageId;
+
+  try {
+    const senderChat = await UserChat.findOne({ userID: senderId });
+    const receiverChat = await UserChat.findOne({ userID: receiverId });
+    const senderReceiverChatIndex = senderChat.chats.findIndex(
+      (chat) => chat.othersId == receiverId
+    );
+    const senderReceiverChatMessageIndex = senderChat.chats[
+      senderReceiverChatIndex
+    ].messages.findIndex((message) => message._id == messageId);
+    senderChat.chats[senderReceiverChatIndex].messages[
+      senderReceiverChatMessageIndex
+    ].isSeen = true;
+    await senderChat.save();
+
+    const receiverSenderChatIndex = receiverChat.chats.findIndex(
+      (chat) => chat.othersId == senderId
+    );
+    const receiverSenderChatMessageIndex = receiverChat.chats[
+      receiverSenderChatIndex
+    ].messages.findIndex((message) => message._id == messageId);
+    receiverChat.chats[receiverSenderChatIndex].messages[
+      receiverSenderChatMessageIndex
+    ].isSeen = true;
+    await receiverChat.save();
+
+    io.getIO().to(senderId).emit("seen-message", {
+      senderId: senderId,
+      receiverId: receiverId,
+      messageId: messageId,
+    });
+
+    res.status(200).json({
+      message: "seen the message successfully",
+    });
+  } catch (err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
