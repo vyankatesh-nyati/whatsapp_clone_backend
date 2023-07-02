@@ -27,6 +27,18 @@ const messageSchema = new Schema({
     type: String,
     required: true,
   },
+  replyText: {
+    type: String,
+    default: "",
+  },
+  messageSenderIdToReply: {
+    type: String,
+    default: "",
+  },
+  replyMessageType: {
+    type: String,
+    default: "text",
+  },
 });
 
 module.exports = messageSchema;

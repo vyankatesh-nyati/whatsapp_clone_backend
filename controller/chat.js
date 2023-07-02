@@ -70,15 +70,31 @@ const sendMessage = async (data) => {
   if (_id == null) {
     _id = new mongoose.Types.ObjectId();
   }
-  const saveMessage = {
-    _id: _id,
-    senderId: senderId,
-    receiverId: receiverId,
-    text: data.text,
-    timesent: data.timesent,
-    isSeen: data.isSeen,
-    type: data.type,
-  };
+  let saveMessage;
+  if (data.replyText != null) {
+    saveMessage = {
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      text: data.text,
+      timesent: data.timesent,
+      isSeen: data.isSeen,
+      type: data.type,
+      replyText: data.replyText,
+      messageSenderIdToReply: data.messageSenderIdToReply,
+      replyMessageType: data.replyMessageType,
+    };
+  } else {
+    saveMessage = {
+      _id: _id,
+      senderId: senderId,
+      receiverId: receiverId,
+      text: data.text,
+      timesent: data.timesent,
+      isSeen: data.isSeen,
+      type: data.type,
+    };
+  }
 
   if (senderUsersChat.length == 0) {
     const newSenderUsersChat = new UserChat({
@@ -211,6 +227,9 @@ const sendMessage = async (data) => {
     name: senderUser.name,
     profileUrl: senderUser.profileUrl,
     type: data.type,
+    replyText: data.replyText,
+    messageSenderIdToReply: data.messageSenderIdToReply,
+    replyMessageType: data.replyMessageType,
   });
 };
 
@@ -222,6 +241,9 @@ exports.sendTextMessage = async (req, res, next) => {
   const isSeen = req.body.isSeen;
   const type = req.body.type;
   const _id = new mongoose.Types.ObjectId();
+  const replyText = req.body.replyText;
+  const messageSenderIdToReply = req.body.messageSenderIdToReply;
+  const replyMessageType = req.body.replyMessageType;
 
   try {
     await sendMessage({
@@ -232,16 +254,37 @@ exports.sendTextMessage = async (req, res, next) => {
       isSeen: isSeen,
       text: text,
       type: type,
+      replyText: replyText,
+      messageSenderIdToReply: messageSenderIdToReply,
+      replyMessageType: replyMessageType,
     });
-    res.status(200).json({
-      _id: _id,
-      senderId: senderId,
-      receiverId: receiverId,
-      timesent: timesent,
-      isSeen: isSeen,
-      text: text,
-      type: type,
-    });
+    if (replyText == null) {
+      res.status(200).json({
+        _id: _id,
+        senderId: senderId,
+        receiverId: receiverId,
+        timesent: timesent,
+        isSeen: isSeen,
+        text: text,
+        type: type,
+        replyText: "",
+        messageSenderIdToReply: "",
+        replyMessageType: "text",
+      });
+    } else {
+      res.status(200).json({
+        _id: _id,
+        senderId: senderId,
+        receiverId: receiverId,
+        timesent: timesent,
+        isSeen: isSeen,
+        text: text,
+        type: type,
+        replyText: replyText,
+        messageSenderIdToReply: messageSenderIdToReply,
+        replyMessageType: replyMessageType,
+      });
+    }
   } catch (err) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -255,6 +298,10 @@ exports.sendFileMessage = async (req, res, next) => {
   const senderId = req.body.senderId;
   const receiverId = req.body.receiverId;
   const timesent = req.body.timesent;
+  const replyText = req.body.replyText;
+  const messageSenderIdToReply = req.body.messageSenderIdToReply;
+  const replyMessageType = req.body.replyMessageType;
+
   let isSeen = false;
   if (req.body.isSeen == "true") {
     isSeen = true;
@@ -280,17 +327,38 @@ exports.sendFileMessage = async (req, res, next) => {
       isSeen: isSeen,
       text: result.secure_url,
       type: type,
+      replyText: replyText,
+      messageSenderIdToReply: messageSenderIdToReply,
+      replyMessageType: replyMessageType,
     });
 
-    res.status(200).json({
-      _id: _id,
-      senderId: senderId,
-      receiverId: receiverId,
-      timesent: timesent,
-      isSeen: isSeen,
-      text: result.secure_url,
-      type: type,
-    });
+    if (replyText == null) {
+      res.status(200).json({
+        _id: _id,
+        senderId: senderId,
+        receiverId: receiverId,
+        timesent: timesent,
+        isSeen: isSeen,
+        text: result.secure_url,
+        type: type,
+        replyText: "",
+        messageSenderIdToReply: "",
+        replyMessageType: "text",
+      });
+    } else {
+      res.status(200).json({
+        _id: _id,
+        senderId: senderId,
+        receiverId: receiverId,
+        timesent: timesent,
+        isSeen: isSeen,
+        text: result.secure_url,
+        type: type,
+        replyText: replyText,
+        messageSenderIdToReply: messageSenderIdToReply,
+        replyMessageType: replyMessageType,
+      });
+    }
   } catch (error) {
     if (!error.statusCode) {
       error.statusCode = 500;
