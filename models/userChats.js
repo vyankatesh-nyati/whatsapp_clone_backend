@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const chatsSchema = require("./chats");
-const lastChatSchema = require("./lastChat");
+const chatsSchema = require("./sub_models/chats");
+const lastChatSchema = require("./sub_models/lastChat");
 
 const Schema = mongoose.Schema;
 

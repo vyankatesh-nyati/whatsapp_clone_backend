@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
-const statusSchema = require("./status");
-const othersStatusSchema = require("./othersStatus");
+const statusSchema = require("./sub_models/status");
+const othersStatusSchema = require("./sub_models/othersStatus");
 
 const Schema = mongoose.Schema;
 
