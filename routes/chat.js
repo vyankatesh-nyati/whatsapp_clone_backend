@@ -6,17 +6,17 @@ const chatController = require("../controller/chat");
 
 const router = express.Router();
 
-router.get("chat/chat-details/:id", isAuth, chatController.chatDetails);
+router.get("chat-details/:id", isAuth, chatController.chatDetails);
 
-router.post("chat/send-text-message", isAuth, chatController.sendTextMessage);
+router.post("send-text-message", isAuth, chatController.sendTextMessage);
 
 router.post(
-  "chat/send-file-message",
+  "send-file-message",
   multer.chatUpload,
   isAuth,
   chatController.sendFileMessage
 );
 
-router.post("chat/seen-message", isAuth, chatController.seenMessage);
+router.post("seen-message", isAuth, chatController.seenMessage);
 
 module.exports = router;
