@@ -1,5 +1,8 @@
 const mongoose = require("mongoose");
 
+const statusSchema = require("./status");
+const othersStatusSchema = require("./othersStatus");
+
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
@@ -10,12 +13,23 @@ const userSchema = new Schema(
     },
     name: {
       type: String,
+      default: "",
     },
     profileUrl: {
       type: String,
+      default: "",
     },
     isOnline: {
       type: Boolean,
+      default: false,
+    },
+    myStatusList: {
+      type: [statusSchema],
+      default: [],
+    },
+    othersStatusList: {
+      type: [othersStatusSchema],
+      default: [],
     },
   },
   { timestamps: true }
