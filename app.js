@@ -22,8 +22,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static("public"));
-app.use("/images", express.static("images"));
+// app.use(express.static("public"));
+// app.use("/images", express.static("images"));
 
 app.use("/api", authRoutes);
 app.use("/api", contactRoutes);
