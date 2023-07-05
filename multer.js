@@ -40,3 +40,16 @@ chatStorage = multer.diskStorage({
 });
 
 exports.chatUpload = multer({ storage: chatStorage }).single("chatImage");
+
+statusStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "/images/status"));
+  },
+  filename: (req, file, cb) => {
+    const _id = new mongoose.Types.ObjectId();
+    req._id = _id;
+    cb(null, file.originalname);
+  },
+});
+
+exports.statusUpload = multer({ storage: statusStorage }).single("statusFile");

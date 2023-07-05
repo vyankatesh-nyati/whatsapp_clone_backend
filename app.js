@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const authRoutes = require("./routes/auth");
 const contactRoutes = require("./routes/contact");
 const chatRoutes = require("./routes/chat");
+const statusRoutes = require("./routes/status");
 const chatController = require("./controller/chat");
 
 const app = express();
@@ -28,6 +29,7 @@ app.use((req, res, next) => {
 app.use("/api", authRoutes);
 app.use("/api/contact", contactRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/status", statusRoutes);
 
 app.use((error, req, res, next) => {
   console.log(error);

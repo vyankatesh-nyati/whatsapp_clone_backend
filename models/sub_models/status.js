@@ -12,6 +12,10 @@ const statusSchema = new Schema(
       type: Number,
       default: 4294198070,
     },
+    fontSize: {
+      type: Number,
+      default: 34,
+    },
     url: {
       type: String,
       default: "",
