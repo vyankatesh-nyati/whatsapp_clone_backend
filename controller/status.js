@@ -6,15 +6,14 @@ const path = require("path");
 
 exports.addStatus = async (req, res, next) => {
   const title = req.body.title;
-  const backgroundColor = req.body.backgroundColor;
-  const fontSize = req.body.fontSize;
+  const backgroundColor = parseInt(req.body.backgroundColor);
+  const fontSize = parseFloat(req.body.fontSize);
   const caption = req.body.caption;
   const statusType = req.body.statusType;
   const userId = req.userId;
   let _id = req._id;
   const contactList = req.body.contactList.split(",");
 
-  console.log(contactList[1]);
   let isSeen = false;
   if (req.body.isSeen == "true") {
     isSeen = true;
@@ -88,7 +87,7 @@ exports.addStatus = async (req, res, next) => {
 
     res.status(200).json({
       message: "status added successfully",
-      data: newStatus,
+      data: updatedUser.myStatusList[updatedUser.myStatusList.length - 1],
     });
   } catch (error) {
     if (!error.statusCode) {
