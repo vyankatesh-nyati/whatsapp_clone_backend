@@ -12,4 +12,6 @@ router.post(
   statusController.addStatus
 );
 
+router.post("/seen-status", isAuth, statusController.seenStatus);
+
 module.exports = router;

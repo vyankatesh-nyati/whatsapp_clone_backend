@@ -54,8 +54,10 @@ exports.addStatus = async (req, res, next) => {
 
     for (let i = 0; i < users.length; i++) {
       let isContain = contactList.includes(users[i].phoneNumber);
+
       if (isContain) {
-        io.getIO().to(users[i]._id).emit("added-status", {
+        // console.log(users[i]._id.toString());
+        io.getIO().to(users[i]._id.toString()).emit("added-status", {
           _id: _id,
           title: title,
           backgroundColor: backgroundColor,
@@ -67,6 +69,7 @@ exports.addStatus = async (req, res, next) => {
           userId: userId,
           name: foundUser.name,
           profileUrl: foundUser.profileUrl,
+          createdAt: updatedUser.createdAt,
         });
         const statusIndex = users[i].othersStatusList.findIndex(
           (status) => status.userId == userId
@@ -88,6 +91,57 @@ exports.addStatus = async (req, res, next) => {
     res.status(200).json({
       message: "status added successfully",
       data: updatedUser.myStatusList[updatedUser.myStatusList.length - 1],
+    });
+  } catch (error) {
+    if (!error.statusCode) {
+      error.statusCode = 500;
+    }
+    next(error);
+  }
+};
+
+exports.seenStatus = async (req, res, next) => {
+  const statusId = req.body.statusId;
+  const userId = req.userId;
+  const isSeen = req.body.isSeen;
+  const othersId = req.body.othersId;
+  try {
+    const foundUser = await User.findById(userId);
+    let foundIndex;
+    if (othersId == "") {
+      foundIndex = foundUser.myStatusList.findIndex(
+        (status) => status.id == statusId
+      );
+      if (foundIndex == -1) {
+        const err = new Error("status not found");
+        err.statusCode = 403;
+        throw err;
+      }
+      foundUser.myStatusList[foundIndex].isSeen = isSeen;
+    } else {
+      const foundUserIndex = foundUser.othersStatusList.findIndex(
+        (status) => status.userId == othersId
+      );
+      if (foundUserIndex == -1) {
+        const err = new Error("User status not found");
+        err.statusCode = 403;
+        throw err;
+      }
+      foundIndex = foundUser.othersStatusList[
+        foundUserIndex
+      ].statusList.findIndex((status) => status.id == statusId);
+      if (foundIndex == -1) {
+        const err = new Error("status not found");
+        err.statusCode = 403;
+        throw err;
+      }
+      foundUser.othersStatusList[foundUserIndex].statusList[foundIndex].isSeen =
+        isSeen;
+    }
+    const updatedUser = await foundUser.save();
+    res.status(200).json({
+      message: "data updated successfully",
+      data: updatedUser,
     });
   } catch (error) {
     if (!error.statusCode) {
